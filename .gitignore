@@ -1,0 +1,80 @@
+# ============================================
+# LINEスタンプ丸投げちゃん .gitignore
+# ============================================
+
+# Environment
+.env
+.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+.venv/
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# ============================================
+# ユーザーデータ（絶対コミットしない）
+# ============================================
+data/
+!data/.gitkeep
+
+# API tokens (never commit!)
+*_token.txt
+*_token.json
+credentials.json
+*_config.json
+**/mcp_config.json
+
+# ============================================
+# AI内部用（ローカル専用）
+# ============================================
+HANDOVER.md
+IMPROVEMENTS.md
+
+# ============================================
+# Landing page（内部用）
+# ============================================
+landing/
+
+# ============================================
+# テストキャッシュ
+# ============================================
+.pytest_cache/
+
+# ============================================
+# Claude設定（個人用）
+# ============================================
+.claude/
+
+# AI Handover files
+HANDOVER*.md
+.claude/

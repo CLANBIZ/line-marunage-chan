@@ -1,0 +1,17 @@
+# LINEスタンプ丸投げちゃん 依存パッケージ
+
+# Webサーバー
+flask>=3.0.0
+flask-cors>=4.0.0
+
+# Gemini API (新SDK - Gemini 3 Pro Image Preview対応)
+google-genai>=1.0.0
+
+# 画像処理
+Pillow>=10.0.0
+
+# 背景削除（オプション - 大きいので必要な場合のみ）
+# rembg>=2.0.0
+
+# その他
+python-dotenv>=1.0.0

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LINEスタンプ丸投げちゃん</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <div class="container">
+        <header class="header">
+            <h1>LINEスタンプ丸投げちゃん</h1>
+            <p>Gemini 3 Pro で LINEスタンプを量産</p>
+        </header>
+
+        <!-- Security Warning -->
+        <div class="card card-warning">
+            <div class="card-row">
+                <span class="card-emoji">&#9888;&#65039;</span>
+                <div>
+                    <h3 class="warning-title">ローカル環境専用ツール</h3>
+                    <p class="text-sm text-muted mb-0">
+                        このツールはご自身のPC内（ローカル環境）でのみ使用してください。
+                        GitHubへのプッシュやクラウドサーバーへのデプロイは絶対に行わないでください。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 1: API Settings -->
+        <div class="card" id="step1">
+            <div class="card-header">
+                <div class="card-icon">&#128273;</div>
+                <h2 class="card-title">STEP 1: Gemini API 接続</h2>
+            </div>
+
+            <div class="input-group">
+                <div style="flex: 1;">
+                    <label for="apiKey" class="input-label">APIキー</label>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="password" id="apiKey" class="input-field"
+                               placeholder="Google AI Studio で取得したAPIキー"
+                               aria-describedby="apiKeyHelp"
+                               style="flex: 1;">
+                        <button class="btn btn-primary" id="verifyBtn" onclick="verifyConnection()" style="white-space: nowrap;">
+                            確認
+                        </button>
+                    </div>
+                    <p id="apiKeyHelp" class="text-sm text-muted mt-2">
+                        <a href="https://aistudio.google.com/apikey" target="_blank"
+                            class="link-primary">Google AI Studio</a> でAPIキーを取得
+                        <br>※ 従量課金の請求設定が必要です（画像生成は有料）
+                    </p>
+                </div>
+            </div>
+
+            <!-- モデル接続状態表示 -->
+            <div id="modelStatus" class="hidden" style="margin-top: 1rem; padding: 1rem; background: rgba(16, 185, 129, 0.1); border-radius: 8px; border-left: 4px solid #10b981;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                    <span style="font-size: 1.2rem;">&#9989;</span>
+                    <strong style="color: #065f46;">API接続OK</strong>
+                </div>
+                <div style="font-size: 0.875rem; color: #374151;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                        <span>&#129302;</span>
+                        <span>テキスト: <code id="textModelName" style="background: #e5e7eb; padding: 0.125rem 0.5rem; border-radius: 4px;">-</code></span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span>&#128444;&#65039;</span>
+                        <span>画像: <code id="imageModelName" style="background: #e5e7eb; padding: 0.125rem 0.5rem; border-radius: 4px;">-</code></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 接続エラー表示 -->
+            <div id="modelStatusError" class="hidden" style="margin-top: 1rem; padding: 1rem; background: rgba(239, 68, 68, 0.1); border-radius: 8px; border-left: 4px solid #ef4444;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.2rem;">&#10060;</span>
+                    <strong style="color: #991b1b;">API接続エラー</strong>
+                </div>
+                <p id="modelStatusErrorText" class="text-sm" style="color: #991b1b; margin-top: 0.5rem;"></p>
+            </div>
+
+            <div id="apiStatus" class="badge hidden">
+                <span id="apiStatusIcon"></span>
+                <span id="apiStatusText"></span>
+            </div>
+
+            <!-- 料金目安（折りたたみ式） -->
+            <details class="pricing-accordion">
+                <summary>&#128161; 料金目安（Gemini 3 Pro）</summary>
+                <div class="pricing-content">
+                    <div class="pricing-row">
+                        <span>キャラ企画（5案）</span>
+                        <span>約1〜2円</span>
+                    </div>
+                    <div class="pricing-row">
+                        <span>プロンプト生成</span>
+                        <span>約1〜2円</span>
+                    </div>
+                    <div class="pricing-row">
+                        <span>画像生成（1枚）</span>
+                        <span>約20円</span>
+                    </div>
+                    <div class="pricing-row">
+                        <span>英語登録情報生成</span>
+                        <span>約1円</span>
+                    </div>
+                    <div class="pricing-row">
+                        <span>画像リサイズ</span>
+                        <span>無料</span>
+                    </div>
+                    <div class="pricing-row total">
+                        <span>1セット合計</span>
+                        <span>約23〜25円</span>
+                    </div>
+                </div>
+            </details>
+        </div>
+
+        <!-- Step 2: Character Proposal -->
+        <div class="card" id="step2">
+            <div class="card-header">
+                <div class="card-icon">&#10024;</div>
+                <h2 class="card-title">STEP 2: キャラクター企画</h2>
+            </div>
+
+            <p class="text-sm text-muted mb-2">
+                AIが「売れそうなキャラクター」を5案提案します。リクエストがあれば入力してください。
+            </p>
+
+            <!-- リクエスト入力欄 -->
+            <div class="request-input-section">
+                <label for="characterRequest" class="input-label">リクエスト（任意）</label>
+                <textarea id="characterRequest" class="input-field textarea-field"
+                    placeholder="例: 在宅ワークで疲れたOL&#10;例: コーヒー中毒のペンギン"
+                    rows="2"></textarea>
+                <p class="text-xs text-muted mt-1">
+                    空欄の場合はAIが自由に提案します
+                </p>
+            </div>
+
+            <button class="btn btn-primary" id="proposeBtn" onclick="proposeCharacters()">
+                <span class="btn-icon">&#129302;</span>
+                キャラクターを提案してもらう
+            </button>
+
+            <div id="proposalLoading" class="loading hidden">
+                <div class="spinner"></div>
+                <span>AIが考え中...</span>
+            </div>
+
+            <div id="characterOptions" class="character-options hidden">
+                <!-- キャラクター選択肢がここに入る -->
+            </div>
+        </div>
+
+        <!-- Step 3: Generate Grid -->
+        <div class="card hidden" id="step3">
+            <div class="card-header">
+                <div class="card-icon">&#127912;</div>
+                <h2 class="card-title">STEP 3: スタンプ画像生成</h2>
+            </div>
+
+            <div id="selectedCharacter" class="selected-character">
+                <!-- 選択されたキャラクターの情報 -->
+            </div>
+
+            <p class="text-sm text-muted mb-2">
+                選択したキャラクターで18枚のスタンプ画像（6x3グリッド）を生成します。
+            </p>
+
+            <button class="btn btn-primary" id="generateBtn" onclick="generateStampGrid()">
+                <span class="btn-icon">&#127912;</span>
+                画像を生成する
+            </button>
+
+            <div id="generateLoading" class="loading hidden">
+                <div class="spinner"></div>
+                <span>Gemini 3 Pro で画像生成中...（30秒〜1分）</span>
+            </div>
+
+            <div id="generatedResult" class="generated-result hidden">
+                <!-- 生成された画像がここに表示 -->
+            </div>
+        </div>
+
+        <!-- Step 4: Manual Crop Guide -->
+        <div class="card hidden" id="step4">
+            <div class="card-header">
+                <div class="card-icon">&#9986;&#65039;</div>
+                <h2 class="card-title">STEP 4: 手動で切り抜き</h2>
+            </div>
+
+            <div class="step-guide">
+                <p><strong>生成された画像を手動でスクリーンショットして切り抜いてください。</strong></p>
+                <ol>
+                    <li>上の画像を開く（クリックで拡大）</li>
+                    <li>スクショで16枚切り抜き
+                        <ul>
+                            <li>Mac: <kbd>Command + Shift + 4</kbd></li>
+                            <li>Win: <kbd>Win + Shift + S</kbd></li>
+                        </ul>
+                    </li>
+                    <li>切り抜いた画像を1つのフォルダに保存</li>
+                </ol>
+                <p class="text-sm text-muted">
+                    ※ 自動分割は背景の関係でうまくいかないことが多いため、手動推奨です
+                </p>
+            </div>
+
+            <!-- 画像リサイズエリア -->
+            <div class="resize-section">
+                <h3 class="resize-title">切り抜いた画像をLINE仕様にリサイズ</h3>
+                <div class="drop-zone" id="dropZone">
+                    <div class="drop-zone-content">
+                        <span class="drop-zone-icon">&#128194;</span>
+                        <p class="drop-zone-text">ここに画像をドラッグ&ドロップ</p>
+                        <p class="drop-zone-subtext">または</p>
+                        <label class="btn btn-secondary file-select-btn">
+                            ファイルを選択
+                            <input type="file" id="fileInput" multiple accept="image/*" hidden>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- アップロード状態表示 -->
+                <div id="uploadStatus" class="upload-status hidden">
+                    <div class="upload-progress">
+                        <div class="upload-progress-bar" id="uploadProgressBar"></div>
+                    </div>
+                    <p id="uploadStatusText" class="text-sm text-muted"></p>
+                </div>
+
+                <!-- リサイズ結果 -->
+                <div id="resizeResult" class="resize-result hidden">
+                    <div class="result-header">
+                        <span class="result-icon">&#9989;</span>
+                        <span id="resultText"></span>
+                    </div>
+                    <div class="result-preview" id="resultPreview"></div>
+                    <a id="downloadLink" class="btn btn-primary download-btn" href="#">
+                        &#128229; ZIPでダウンロード
+                    </a>
+                    <p class="text-sm text-muted mt-2">
+                        ダウンロードしたZIPには 01.png〜, main.png, tab.png が含まれます
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 5: LINE Registration Info -->
+        <div class="card hidden" id="step5">
+            <div class="card-header">
+                <div class="card-icon">&#128203;</div>
+                <h2 class="card-title">STEP 5: LINE登録情報</h2>
+            </div>
+
+            <div id="registrationInfo" class="registration-info">
+                <!-- 登録情報がここに表示 -->
+            </div>
+
+            <div class="next-steps">
+                <h4>次のステップ</h4>
+                <ol>
+                    <li><a href="https://creator.line.me/" target="_blank" class="link-primary">LINE Creators Market</a> にログイン</li>
+                    <li>「スタンプを作成」→ 画像をアップロード</li>
+                    <li>上の登録情報をコピペして申請</li>
+                    <li>2営業日で審査完了 → 全世界販売開始！</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- AI Disclaimer -->
+        <div class="card card-info">
+            <div class="card-row">
+                <span class="card-emoji">&#128161;</span>
+                <div>
+                    <h3 class="info-title">ご注意</h3>
+                    <p class="text-sm text-muted mb-0">
+                        <strong>AIは完璧ではありません。</strong>生成された画像の著作権・商標権は必ずご確認ください。<br>
+                        LINE Creators Market の<a href="https://creator.line.me/ja/guideline/" target="_blank" class="link-primary">ガイドライン</a>に準拠しているか、最終確認は必ずご自身で行ってください。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            LINEスタンプ丸投げちゃん v2.0.0
+            <br>
+            <a href="https://note.com/skillmade/n/neb971cae216b" target="_blank" class="link-muted">
+                ベース: Nano Banana Pro × Gemini3 LINEスタンプ量産ロードマップ
+            </a>
+        </footer>
+    </div>
+
+    <script src="/static/js/script.js"></script>
+</body>
+
+</html>
+<!--
+LINEスタンプ丸投げちゃん
+Copyright (c) 2025 株式会社CLAN (https://clanbiz.net/)
+Licensed under MIT License
+-->
