@@ -5,6 +5,7 @@
 # Environment
 .env
 .env.local
+.env.handover
 
 # Python
 __pycache__/
