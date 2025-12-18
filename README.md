@@ -21,7 +21,7 @@
 
 | 用途 | モデル名 |
 |------|---------|
-| テキスト生成 | `gemini-3-pro-preview` |
+| テキスト生成 | `gemini-3-flash-preview` |
 | 画像生成 | `gemini-3-pro-image-preview` |
 
 ### ❌ 禁止モデル（絶対に使うな）
@@ -45,8 +45,8 @@ client.models.generate_content(model='gemini-2.0-flash-exp', ...)
 ### ✅ 正しいワークフロー
 
 ```python
-# Step 1: gemini-3-pro-preview でキャラクター提案
-# Step 2: gemini-3-pro-preview で英語プロンプト生成
+# Step 1: gemini-3-flash-preview でキャラクター提案
+# Step 2: gemini-3-flash-preview で英語プロンプト生成
 # Step 3: gemini-3-pro-image-preview で画像生成
 ```
 

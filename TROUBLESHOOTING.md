@@ -79,7 +79,7 @@ pip install google-genai
 
 **解決**:
 - コードを変更せず、許可モデルのみを使用
-- 許可モデル: `gemini-3-pro-preview`, `gemini-3-pro-image-preview`
+- 許可モデル: `gemini-3-flash-preview`, `gemini-3-pro-image-preview`
 
 ---
 
@@ -167,8 +167,8 @@ python server.py
 エラー発生時のログ例:
 ```
 [キャラ提案] リクエスト: 在宅ワークで疲れたOL
-[キャラ提案] 使用モデル: gemini-3-pro-preview
-[プロンプト生成] 使用モデル: gemini-3-pro-preview
+[キャラ提案] 使用モデル: gemini-3-flash-preview
+[プロンプト生成] 使用モデル: gemini-3-flash-preview
 [画像生成] 使用モデル: gemini-3-pro-image-preview
 [英語登録情報] 生成完了
 ```

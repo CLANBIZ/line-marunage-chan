@@ -32,7 +32,7 @@ import io
 # !! 許可されたモデル定数 !!
 # !! これ以外のモデルは絶対に使用しないこと !!
 # ============================================================
-ALLOWED_TEXT_MODEL = "gemini-3-pro-preview"
+ALLOWED_TEXT_MODEL = "gemini-3-flash-preview"
 ALLOWED_IMAGE_MODEL = "gemini-3-pro-image-preview"
 
 # 禁止モデルパターン（これらを含むモデル名は拒否）

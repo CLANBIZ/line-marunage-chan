@@ -14,7 +14,7 @@
 !! 重要: モデル使用ルール !!
 ============================================================
 許可されたモデル:
-  - テキスト生成: gemini-3-pro-preview
+  - テキスト生成: gemini-3-flash-preview
   - 画像生成: gemini-3-pro-image-preview
 
 !! 絶対に使用禁止 !!
@@ -101,9 +101,9 @@ client = genai.Client(api_key="YOUR_API_KEY")
 ### テキスト生成
 
 ```python
-# gemini-3-pro-preview のみ使用
+# gemini-3-flash-preview のみ使用
 response = client.models.generate_content(
-    model="gemini-3-pro-preview",
+    model="gemini-3-flash-preview",
     contents=["LINEスタンプのキャラクターを5案提案して"]
 )
 print(response.text)

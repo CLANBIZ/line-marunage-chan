@@ -60,7 +60,7 @@
               ▼
 ┌─────────────────────────────────────────────────────────────┐
 │  Gemini API (Google AI Studio)                              │
-│  - gemini-3-pro-preview (テキスト)                           │
+│  - gemini-3-flash-preview (テキスト)                           │
 │  - gemini-3-pro-image-preview (画像)                         │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -103,7 +103,7 @@ LINE/
 
 ```python
 # 許可モデル（定数）
-ALLOWED_TEXT_MODEL = "gemini-3-pro-preview"
+ALLOWED_TEXT_MODEL = "gemini-3-flash-preview"
 ALLOWED_IMAGE_MODEL = "gemini-3-pro-image-preview"
 
 # 禁止パターン（バリデーション用）
@@ -170,7 +170,7 @@ API接続を確認し、モデル情報を返す
 ```json
 {
   "success": true,
-  "text_model": "gemini-3-pro-preview",
+  "text_model": "gemini-3-flash-preview",
   "image_model": "gemini-3-pro-image-preview"
 }
 ```

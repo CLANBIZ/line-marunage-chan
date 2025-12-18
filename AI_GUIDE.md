@@ -30,7 +30,7 @@ STEP 5: LINE登録情報（日本語/英語自動生成）
 【使用モデル（厳格ルール）】
 
 ✅ 許可モデル:
-  - テキスト生成: gemini-3-pro-preview
+  - テキスト生成: gemini-3-flash-preview
   - 画像生成: gemini-3-pro-image-preview
 
 ❌ 絶対に使用禁止:
@@ -102,7 +102,7 @@ python server.py
 3. UIのAPIキー欄に入力 → 「確認」ボタン
 
 **確認成功時の表示:**
-- テキストモデル: gemini-3-pro-preview
+- テキストモデル: gemini-3-flash-preview
 - 画像モデル: gemini-3-pro-image-preview
 
 ### STEP 2: キャラクター企画
@@ -161,7 +161,7 @@ AIが以下を提案:
 ❌ NG: gemini-2.0-flash で画像生成
 ❌ NG: gemini-1.5-pro でテキスト生成
 
-✅ OK: gemini-3-pro-preview（テキスト）
+✅ OK: gemini-3-flash-preview（テキスト）
 ✅ OK: gemini-3-pro-image-preview（画像）
 ```
 
