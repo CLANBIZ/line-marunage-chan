@@ -34,6 +34,10 @@ pip install google-genai
 **解決**:
 1. 別のターミナルで動いているserver.pyを終了
 2. タスクマネージャーでPythonプロセスを終了
+3. **または別のポートで起動**: `python server.py --port 5001` など
+
+> **AIエージェントへ**: ローカルサーバーが使用中の場合、他のポートでの起動を試みてください。
+> 例: `python server.py --port 5001` → ブラウザで `http://localhost:5001` を開く
 
 ### 「Permission denied」
 
