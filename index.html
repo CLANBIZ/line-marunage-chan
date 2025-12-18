@@ -85,6 +85,16 @@
                     <strong style="color: #991b1b;">API接続エラー</strong>
                 </div>
                 <p id="modelStatusErrorText" class="text-sm" style="color: #991b1b; margin-top: 0.5rem;"></p>
+                <details style="margin-top: 0.75rem;">
+                    <summary style="cursor: pointer; color: #6b7280; font-size: 0.875rem;">&#128736; 解決方法（AIエージェントに伝えてください）</summary>
+                    <div style="margin-top: 0.5rem; padding: 0.75rem; background: #f9fafb; border-radius: 6px; font-size: 0.8rem; color: #374151;">
+                        <p style="margin-bottom: 0.5rem;"><strong>以下をAIエージェントにコピペしてください：</strong></p>
+                        <code style="display: block; background: #1f2937; color: #e5e7eb; padding: 0.75rem; border-radius: 4px; white-space: pre-wrap; font-size: 0.75rem;">API接続エラーが出ています。以下を実行してください：
+1. git pull origin main で最新コードを取得
+2. rm -rf __pycache__ core/__pycache__ でキャッシュ削除
+3. python server.py でサーバー再起動</code>
+                    </div>
+                </details>
             </div>
 
             <div id="apiStatus" class="badge hidden">
