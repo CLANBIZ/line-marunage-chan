@@ -68,13 +68,6 @@ def add_generated_characters(new_names: list[str]) -> None:
 ALLOWED_TEXT_MODEL = "gemini-3-flash-preview"
 ALLOWED_IMAGE_MODEL = "gemini-3-pro-image-preview"
 
-# 禁止モデルパターン（これらを含むモデル名は拒否）
-FORBIDDEN_MODEL_PATTERNS = [
-    "gemini-2",
-    "gemini-1",
-    "flash",
-]
-
 
 def _extract_json(text: str):
     """
@@ -106,21 +99,15 @@ def validate_model(model_name: str) -> None:
     Raises:
         ValueError: 禁止モデルが指定された場合
     """
-    # 許可リストチェック
-    if model_name not in [ALLOWED_TEXT_MODEL, ALLOWED_IMAGE_MODEL]:
-        raise ValueError(
-            f"許可されていないモデルです: {model_name}\n"
-            f"許可モデル: {ALLOWED_TEXT_MODEL}, {ALLOWED_IMAGE_MODEL}"
-        )
+    # 許可リストチェック（許可リストにあればOK）
+    if model_name in [ALLOWED_TEXT_MODEL, ALLOWED_IMAGE_MODEL]:
+        return  # 許可モデルなのでチェック完了
 
-    # 禁止パターンチェック（二重チェック）
-    model_lower = model_name.lower()
-    for pattern in FORBIDDEN_MODEL_PATTERNS:
-        if pattern in model_lower:
-            raise ValueError(
-                f"禁止されたモデルパターンが検出されました: {model_name}\n"
-                f"パターン '{pattern}' は使用禁止です"
-            )
+    # 許可リストにない場合はエラー
+    raise ValueError(
+        f"許可されていないモデルです: {model_name}\n"
+        f"許可モデル: {ALLOWED_TEXT_MODEL}, {ALLOWED_IMAGE_MODEL}"
+    )
 
 
 class GeminiClient:
