@@ -76,15 +76,23 @@ client.models.generate_content(model='gemini-2.0-flash-exp', ...)
 
 ---
 
-## クイックスタート（3ステップ）
+## クイックスタート（4ステップ）
 
-### Step 1: Claude Codeで以下をコピペ
+### Step 1: エディタ（Antigravity）を立ち上げる
+
+1. **Antigravity**（https://antigravity.app/）をインストールして開く
+2. 左下の「＋」からワークスペースを作成
+3. AIエージェント（gemini 3.0 flash か claude code）に以下をコピペして伝える：
 
 ```
-cd ~/Desktop/line-marunage-chan && pip install -r requirements.txt && python server.py
+https://github.com/CLANBIZ/line-marunage-chan をクローンして、pip install -r requirements.txt && python server.py を実行して http://localhost:5000 をブラウザで開いて。うまく行かない場合 AI_GUIDE.md と TROUBLESHOOTING.md を読んで解決策を探して
 ```
 
-> **Claude Codeがない場合：** ターミナル（Mac）またはコマンドプロンプト（Windows）で上記を実行
+💡 **Claude Codeの起動方法（Antigravity以外の場合）**
+
+**方法1**: ターミナルから `claude`（Windowsは `wsl claude`）
+
+**方法2**: VSCode拡張機能「Claude Code」をインストール → 右上のオレンジ色の **Claude ボタン** をクリック
 
 ### Step 2: ブラウザで開く
 
@@ -92,12 +100,15 @@ cd ~/Desktop/line-marunage-chan && pip install -r requirements.txt && python ser
 http://localhost:5000
 ```
 
-### Step 3: APIキーを入力してスタンプ作成
+### Step 3: APIキーを入力
 
 1. 画面の「APIキー」欄にGemini APIキーを貼り付け
 2. 「確認」ボタンを押す
-3. 「キャラクターを提案してもらう」ボタンを押す
-4. 気に入ったキャラを選んで「画像を生成する」
+
+### Step 4: スタンプ作成
+
+1. 「キャラクターを提案してもらう」ボタンを押す
+2. 気に入ったキャラを選んで「画像を生成する」
 
 ---
 
