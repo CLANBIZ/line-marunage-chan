@@ -222,12 +222,11 @@ line-marunage-chan/
 ### ❌ 禁止モデル（絶対に使うな）
 
 ```
-gemini-2.0-flash-exp   ← 使用禁止
-gemini-2.0-flash       ← 使用禁止
-gemini-2.5-flash       ← 使用禁止
-gemini-1.x 系          ← 使用禁止
-"flash" を含む全て     ← 使用禁止
+gemini-2.x 系全て      ← 使用禁止
+gemini-1.x 系全て      ← 使用禁止
 ```
+
+※ 許可リスト以外のモデルは全て拒否されます
 
 ### ❌ やってはいけないこと
 
