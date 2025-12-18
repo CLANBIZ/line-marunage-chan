@@ -288,19 +288,21 @@ JSON配列で出力（日本語で）:
 3. 背景は「白 (White Background)」
 4. 文字は「日本語」でスタンプ内に入れる
 5. スタイル: Kawaii, Simple flat illustration
+6. 上部タイトルは「日本語」で表示（英語禁止）
 
 以下の形式で英語プロンプトのみ出力（説明不要）:
 
 Create a character sheet for LINE stickers with 18 variations (6 columns x 3 rows).
 Aspect Ratio: Wide (16:9)
-Add a Title Text at the top: "[キャラ名英語]"
+Add a Title Text at the top in JAPANESE: "{char_name}"
 
 Character Settings:
-Name: [英語名]
+Name: {char_name} (display in Japanese)
 Visual: [キャラの見た目を英語で]
 Style: Kawaii, Simple flat illustration, Soft colors
 Background: White
 Text Style: Black text with white outline, Japanese text
+Title: Must be in Japanese, not English
 
 Panels Detail (18 Variations):
 Row 1: 1. [セリフ] 2. [セリフ] ... 6. [セリフ]
