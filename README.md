@@ -76,13 +76,12 @@ client.models.generate_content(model='gemini-2.0-flash-exp', ...)
 
 ---
 
-## クイックスタート（4ステップ）
+## クイックスタート（5ステップ）
 
 ### Step 1: エディタ（Antigravity）を立ち上げる
 
 1. **Antigravity**（https://antigravity.app/）をインストールして開く
-2. 左下の「＋」からワークスペースを作成
-3. AIエージェント（gemini 3.0 flash か claude code）に以下をコピペして伝える：
+2. AIエージェント（gemini 3.0 flash か claude code）に以下をコピペして伝える：
 
 ```
 https://github.com/CLANBIZ/line-marunage-chan をクローンして、pip install -r requirements.txt && python server.py を実行して http://localhost:5000 をブラウザで開いて。うまく行かない場合 AI_GUIDE.md と TROUBLESHOOTING.md を読んで解決策を探して
@@ -92,23 +91,26 @@ https://github.com/CLANBIZ/line-marunage-chan をクローンして、pip instal
 
 **方法1**: ターミナルから `claude`（Windowsは `wsl claude`）
 
-**方法2**: VSCode拡張機能「Claude Code」をインストール → 右上のオレンジ色の **Claude ボタン** をクリック
+**方法2**: antigravity拡張機能「Claude Code」をインストール → オレンジ色のClaudeボタンを押す
 
-### Step 2: ブラウザで開く
+### Step 2: APIキーを取得して入力
 
-```
-http://localhost:5000
-```
+Google AI Studio（https://aistudio.google.com/apikey）でAPIキーを作成し、ローカルホストで立ち上がったUIに入力。
 
-### Step 3: APIキーを入力
+> **重要:** 画像生成は有料なので、請求先アカウントのリンクが必要です。
 
-1. 画面の「APIキー」欄にGemini APIキーを貼り付け
-2. 「確認」ボタンを押す
-
-### Step 4: スタンプ作成
+### Step 3: キャラクターを選んで画像生成
 
 1. 「キャラクターを提案してもらう」ボタンを押す
-2. 気に入ったキャラを選んで「画像を生成する」
+2. 5案から気に入ったキャラを選んで「画像を生成する」
+
+### Step 4: 8枚or16枚選んで切り抜いてZIPダウンロード
+
+生成された画像から8枚または16枚を選択 → スクショで切り抜き（Win+Shift+S / Cmd+Shift+4）→ ドロップエリアに投げ込む → 自動でLINE仕様にリサイズ → ZIPダウンロード
+
+### Step 5: LINE Creators Marketに販売登録
+
+LINE Creators Market（https://creator.line.me/）にアクセス → ダウンロードしたZIPを解凍 → スタンプ画像をアップロード → 審査申請（通常1〜3日で承認）
 
 ---
 
@@ -136,7 +138,7 @@ https://aistudio.google.com/apikey
 2. 請求先アカウントを作成またはリンク
 3. クレジットカードを登録
 
-> **注意：** 無料枠では画像生成できません。1画像あたり約2〜5円程度かかります。
+> **注意：** 無料枠では画像生成できません。1セットおよそ30円程度かかります（状況により変動するので、1枚作ってみて24時間後の料金反映を確かめてから量産するようにしてください）。
 
 ---
 
@@ -145,19 +147,15 @@ https://aistudio.google.com/apikey
 ### スタンプ作成の流れ
 
 ```
-Step 1: APIキー入力
+Step 1: エディタ（Antigravity）を立ち上げる
     ↓
-Step 2: キャラクター提案（5案）
+Step 2: APIキーを取得して入力
     ↓
-Step 3: キャラ選択 → 画像生成
+Step 3: キャラクターを選んで画像生成
     ↓
-Step 4: 生成された画像をスクショで切り抜き
+Step 4: 8枚or16枚選んで切り抜いてZIPダウンロード
     ↓
-Step 5: 切り抜き画像をドロップ → 自動リサイズ
-    ↓
-Step 6: ZIPダウンロード
-    ↓
-Step 7: LINE Creators Marketに登録
+Step 5: LINE Creators Marketに販売登録
 ```
 
 ### LINE Creators Marketへの登録
@@ -232,7 +230,7 @@ line-marunage-chan/
 
 ### Q: 無料で使えますか？
 
-A: ツール自体は無料ですが、Gemini APIの利用料金（1画像2〜5円程度）がかかります。
+A: ツール自体は無料ですが、Gemini APIの利用料金（1セットおよそ30円程度）がかかります。料金は変動するので、1枚作ってみて24時間後の料金反映を確かめてから量産してください。
 
 ### Q: 生成した画像の著作権は？
 
