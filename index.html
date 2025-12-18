@@ -16,7 +16,7 @@
     <div class="container">
         <header class="header">
             <h1>LINEスタンプ丸投げちゃん</h1>
-            <p>Gemini 3 Pro で LINEスタンプを量産</p>
+            <p>nano banana pro で LINEスタンプを量産</p>
         </header>
 
         <!-- Security Warning -->
@@ -94,32 +94,16 @@
 
             <!-- 料金目安（折りたたみ式） -->
             <details class="pricing-accordion">
-                <summary>&#128161; 料金目安（Gemini 3 Pro）</summary>
+                <summary>&#128161; 料金目安（nano banana pro）</summary>
                 <div class="pricing-content">
-                    <div class="pricing-row">
-                        <span>キャラ企画（5案）</span>
-                        <span>約1〜2円</span>
-                    </div>
-                    <div class="pricing-row">
-                        <span>プロンプト生成</span>
-                        <span>約1〜2円</span>
-                    </div>
-                    <div class="pricing-row">
-                        <span>画像生成（1枚）</span>
-                        <span>約20円</span>
-                    </div>
-                    <div class="pricing-row">
-                        <span>英語登録情報生成</span>
-                        <span>約1円</span>
-                    </div>
-                    <div class="pricing-row">
-                        <span>画像リサイズ</span>
-                        <span>無料</span>
-                    </div>
                     <div class="pricing-row total">
                         <span>1セット合計</span>
-                        <span>約23〜25円</span>
+                        <span>およそ30円</span>
                     </div>
+                    <p class="text-xs" style="margin-top: 0.5rem; padding: 0.5rem; background: rgba(245, 158, 11, 0.2); border-radius: 4px; color: #92400e;">
+                        ⚠️ 料金は変動します。1枚作ってみて24時間後の料金反映を確かめてから量産してください。<br>
+                        <a href="https://console.cloud.google.com/billing" target="_blank" style="color: #b45309; text-decoration: underline;">💰 Gemini API の請求額を確認（24時間後に反映）</a>
+                    </p>
                 </div>
             </details>
         </div>
@@ -139,8 +123,8 @@
             <div class="request-input-section">
                 <label for="characterRequest" class="input-label">リクエスト（任意）</label>
                 <textarea id="characterRequest" class="input-field textarea-field"
-                    placeholder="例: 在宅ワークで疲れたOL&#10;例: コーヒー中毒のペンギン"
-                    rows="2"></textarea>
+                    placeholder="例：人間のキャラクター&#10;例：在宅ワークで疲れたOL&#10;例：コーヒー中毒のペンギン"
+                    rows="4"></textarea>
                 <p class="text-xs text-muted mt-1">
                     空欄の場合はAIが自由に提案します
                 </p>
@@ -148,7 +132,7 @@
 
             <button class="btn btn-primary" id="proposeBtn" onclick="proposeCharacters()">
                 <span class="btn-icon">&#129302;</span>
-                キャラクターを提案してもらう
+                キャラクターを5案生成し選ぶ（約1分）
             </button>
 
             <div id="proposalLoading" class="loading hidden">
@@ -176,6 +160,15 @@
                 選択したキャラクターで18枚のスタンプ画像（6x3グリッド）を生成します。
             </p>
 
+            <!-- 料金注意 -->
+            <div class="card-warning-inline" style="margin-bottom: 1rem; padding: 0.75rem; background: rgba(245, 158, 11, 0.15); border-radius: 8px; border-left: 4px solid #f59e0b;">
+                <p class="text-sm" style="margin: 0; color: #92400e;">
+                    <strong>⚠️ 料金注意:</strong> 画像生成1回につき<strong>およそ30円</strong>かかります（変動あり）。<br>
+                    初回は1枚だけ生成し、24時間後に料金を確認してから量産してください。<br>
+                    <a href="https://console.cloud.google.com/billing" target="_blank" style="color: #b45309; text-decoration: underline;">💰 請求額を確認する（24時間後に反映）</a>
+                </p>
+            </div>
+
             <button class="btn btn-primary" id="generateBtn" onclick="generateStampGrid()">
                 <span class="btn-icon">&#127912;</span>
                 画像を生成する
@@ -199,16 +192,15 @@
             </div>
 
             <div class="step-guide">
-                <p><strong>生成された画像を手動でスクリーンショットして切り抜いてください。</strong></p>
+                <p><strong>生成された画像を手動でスクリーンショットして切り抜いてください。</strong><br>できるだけ外枠が無いようにギリギリを切り抜くのがおすすめです。</p>
                 <ol>
                     <li>上の画像を開く（クリックで拡大）</li>
-                    <li>スクショで16枚切り抜き
+                    <li>スクショで8枚 or 16枚切り抜いて選ぶ
                         <ul>
                             <li>Mac: <kbd>Command + Shift + 4</kbd></li>
                             <li>Win: <kbd>Win + Shift + S</kbd></li>
                         </ul>
                     </li>
-                    <li>切り抜いた画像を1つのフォルダに保存</li>
                 </ol>
                 <p class="text-sm text-muted">
                     ※ 自動分割は背景の関係でうまくいかないことが多いため、手動推奨です
@@ -221,7 +213,7 @@
                 <div class="drop-zone" id="dropZone">
                     <div class="drop-zone-content">
                         <span class="drop-zone-icon">&#128194;</span>
-                        <p class="drop-zone-text">ここに画像をドラッグ&ドロップ</p>
+                        <p class="drop-zone-text">ここに画像またはフォルダをドラッグ&ドロップ</p>
                         <p class="drop-zone-subtext">または</p>
                         <label class="btn btn-secondary file-select-btn">
                             ファイルを選択
@@ -248,9 +240,15 @@
                     <a id="downloadLink" class="btn btn-primary download-btn" href="#">
                         &#128229; ZIPでダウンロード
                     </a>
-                    <p class="text-sm text-muted mt-2">
-                        ダウンロードしたZIPには 01.png〜, main.png, tab.png が含まれます
-                    </p>
+                    <div class="text-sm mt-2" style="background: rgba(99, 102, 241, 0.1); padding: 0.75rem; border-radius: 8px;">
+                        <p style="margin: 0 0 0.5rem 0;"><strong>ZIPの中身（LINE登録に必須）:</strong></p>
+                        <ul style="margin: 0; padding-left: 1.25rem; color: #4b5563;">
+                            <li><code>01.png〜</code> スタンプ画像（370×320px）</li>
+                            <li><code>main.png</code> メイン画像（240×240px）ストア表示用</li>
+                            <li><code>tab.png</code> タブ画像（96×74px）トークルーム表示用</li>
+                        </ul>
+                        <p style="margin: 0.5rem 0 0 0; color: #92400e;">⚠️ ZIPをダウンロード後、すべてを展開しサイズを確認してください</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -289,6 +287,17 @@
                     </p>
                 </div>
             </div>
+        </div>
+
+        <!-- Gallery Link (STEP5完了後に表示) -->
+        <div class="card hidden" id="gallerySection" style="text-align: center; background: linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);">
+            <h3 style="color: #ec4899; margin-bottom: 0.5rem;">🎉 できあがった画像をシェアしよう！</h3>
+            <p class="text-sm text-muted mb-3">
+                作成したスタンプ画像をギャラリーに投稿して、みんなに見てもらおう
+            </p>
+            <a href="https://ai-marunage-chan.vercel.app/gallery/" target="_blank" class="btn" style="background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); color: white; font-weight: 600; padding: 0.75rem 2rem; font-size: 1rem; border: none; box-shadow: 0 4px 14px rgba(236, 72, 153, 0.4);">
+                🖼️ ギャラリーに投稿する
+            </a>
         </div>
 
         <footer class="footer">

@@ -784,6 +784,45 @@ kbd {
     text-decoration: none;
 }
 
+/* Character Count Styles */
+.char-count {
+    display: inline-block;
+    margin-left: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.125rem 0.5rem;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.char-count-ok {
+    background: rgba(16, 185, 129, 0.15);
+    color: #059669;
+}
+
+.char-count-warning {
+    background: rgba(245, 158, 11, 0.15);
+    color: #d97706;
+}
+
+.char-count-over {
+    background: rgba(239, 68, 68, 0.15);
+    color: #dc2626;
+    font-weight: 600;
+}
+
+.registration-info table td {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.registration-info table td input {
+    flex: 1;
+    min-width: 200px;
+}
+
 /* ========================================
  * LINEスタンプ丸投げちゃん
  * Copyright (c) 2025 株式会社CLAN

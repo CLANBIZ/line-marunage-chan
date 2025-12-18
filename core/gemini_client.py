@@ -21,11 +21,44 @@ Gemini 3 Pro で LINE スタンプ用画像を生成します。
 
 from google import genai
 from google.genai import types
-import base64
 from pathlib import Path
-from typing import Optional
 import json
 import io
+
+# 生成済みキャラクター保存ファイル（直近100件）
+GENERATED_CHARACTERS_FILE = Path(__file__).parent.parent / "data" / "generated_characters.json"
+MAX_GENERATED_HISTORY = 100
+
+
+def load_generated_characters() -> list[str]:
+    """生成済みキャラクター名のリストを読み込む"""
+    try:
+        if GENERATED_CHARACTERS_FILE.exists():
+            with open(GENERATED_CHARACTERS_FILE, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                return data.get('characters', [])
+    except:
+        pass
+    return []
+
+
+def save_generated_characters(characters: list[str]) -> None:
+    """生成済みキャラクター名を保存（直近100件）"""
+    try:
+        GENERATED_CHARACTERS_FILE.parent.mkdir(parents=True, exist_ok=True)
+        # 直近100件に制限
+        recent = characters[-MAX_GENERATED_HISTORY:]
+        with open(GENERATED_CHARACTERS_FILE, 'w', encoding='utf-8') as f:
+            json.dump({'characters': recent}, f, ensure_ascii=False, indent=2)
+    except:
+        pass
+
+
+def add_generated_characters(new_names: list[str]) -> None:
+    """新しいキャラクター名を追加"""
+    existing = load_generated_characters()
+    existing.extend(new_names)
+    save_generated_characters(existing)
 
 
 # ============================================================
@@ -165,195 +198,6 @@ class GeminiClient:
                 'error': str(e)
             }
 
-    def generate_stamp_image(
-        self,
-        prompt: str,
-        style: str = "kawaii",
-        negative_prompt: Optional[str] = None
-    ):
-        """
-        LINEスタンプ用の画像を生成（Gemini 3 Pro Image Preview）
-
-        Args:
-            prompt: 画像生成プロンプト（日本語OK）
-            style: スタイル（kawaii, simple, pop, etc.）
-            negative_prompt: 除外したい要素
-
-        Returns:
-            生成された画像（PIL Image）
-        """
-        # LINEスタンプ向けの共通プロンプト
-        stamp_prompt = self._build_stamp_prompt(prompt, style)
-
-        try:
-            # Gemini 3 Pro Image Preview で画像生成
-            response = self.client.models.generate_content(
-                model=self.image_model,
-                contents=[stamp_prompt],
-                config=types.GenerateContentConfig(
-                    response_modalities=["IMAGE"],
-                )
-            )
-
-            # レスポンスから画像を取得
-            for part in response.candidates[0].content.parts:
-                if part.inline_data is not None:
-                    # PIL Image として返す
-                    from PIL import Image
-                    image_bytes = part.inline_data.data
-                    return Image.open(io.BytesIO(image_bytes))
-
-            raise Exception("画像の生成に失敗しました")
-
-        except Exception as e:
-            raise Exception(f"Gemini API エラー: {str(e)}")
-
-    def generate_stamp_set(
-        self,
-        theme: str,
-        character_description: str,
-        emotions: list[str],
-        style: str = "kawaii"
-    ) -> list[dict]:
-        """
-        LINEスタンプセット（16枚）を一括生成
-
-        Args:
-            theme: テーマ（例: "溶ける猫", "中世の猫"）
-            character_description: キャラクター説明
-            emotions: 表情/感情リスト（16個推奨）
-            style: スタイル
-
-        Returns:
-            生成結果のリスト [{index, emotion, image_data}, ...]
-        """
-        results = []
-
-        for i, emotion in enumerate(emotions[:16], start=1):
-            prompt = f"{character_description}, {emotion}, {theme}"
-
-            try:
-                image = self.generate_stamp_image(prompt, style)
-                results.append({
-                    "index": i,
-                    "emotion": emotion,
-                    "image": image,
-                    "success": True
-                })
-            except Exception as e:
-                results.append({
-                    "index": i,
-                    "emotion": emotion,
-                    "error": str(e),
-                    "success": False
-                })
-
-        return results
-
-    def analyze_image_for_stamp(self, image_path: str) -> dict:
-        """
-        既存の画像を解析してスタンプ情報を提案
-
-        Args:
-            image_path: 画像ファイルパス
-
-        Returns:
-            {title, description, emotions, tags}
-        """
-        image_data = Path(image_path).read_bytes()
-
-        prompt = """
-この画像をLINEスタンプとして分析してください。以下をJSON形式で出力:
-{
-    "title_ja": "日本語タイトル（40文字以内）",
-    "title_en": "English Title (40 chars max)",
-    "description_ja": "日本語説明文（160文字以内）",
-    "description_en": "English description (160 chars max)",
-    "emotion": "この画像が表す感情/シチュエーション",
-    "tags": ["タグ1", "タグ2", "タグ3"],
-    "suggested_text": "スタンプに入れるテキスト案"
-}
-"""
-
-        response = self.client.models.generate_content(
-            model=self.text_model,
-            contents=[
-                types.Content(
-                    parts=[
-                        types.Part(text=prompt),
-                        types.Part(
-                            inline_data=types.Blob(
-                                mime_type="image/png",
-                                data=image_data
-                            )
-                        )
-                    ]
-                )
-            ]
-        )
-
-        # JSONを抽出
-        try:
-            return _extract_json(response.text)
-        except:
-            return {"raw_response": response.text}
-
-    def suggest_stamp_prompts(self, theme: str, count: int = 16) -> list[str]:
-        """
-        テーマからスタンプ用プロンプトを提案
-
-        Args:
-            theme: テーマ（例: "怠惰な猫", "元気な犬"）
-            count: 生成するプロンプト数
-
-        Returns:
-            プロンプトのリスト
-        """
-        prompt = f"""
-「{theme}」をテーマにしたLINEスタンプ{count}枚分のプロンプトを考えてください。
-
-要件:
-- 日常会話で使いやすい感情・シチュエーション
-- バリエーション豊か（喜怒哀楽 + 挨拶 + リアクション）
-- 各プロンプトは英語で、画像生成AI向けに具体的に
-
-JSON配列で出力:
-["prompt1", "prompt2", ...]
-"""
-
-        response = self.client.models.generate_content(
-            model=self.text_model,
-            contents=[prompt]
-        )
-        try:
-            return _extract_json(response.text)
-        except:
-            return [f"{theme} - emotion {i}" for i in range(1, count + 1)]
-
-    def _build_stamp_prompt(self, user_prompt: str, style: str) -> str:
-        """LINEスタンプ向けのプロンプトを構築"""
-
-        style_modifiers = {
-            "kawaii": "cute, kawaii, adorable, soft colors, round shapes",
-            "simple": "simple, minimal, clean lines, flat design",
-            "pop": "colorful, vibrant, energetic, bold outlines",
-            "retro": "vintage, nostalgic, warm colors, classic style",
-            "watercolor": "watercolor style, soft edges, artistic, pastel",
-        }
-
-        modifier = style_modifiers.get(style, style_modifiers["kawaii"])
-
-        return f"""
-{user_prompt},
-{modifier},
-LINE sticker style,
-transparent background,
-centered composition,
-expressive character,
-high quality,
-no text unless specified
-""".strip()
-
     def propose_characters(self, user_request: str = "") -> tuple[list[dict], dict]:
         """
         売れそうなLINEスタンプキャラクターを5案提案
@@ -377,11 +221,21 @@ no text unless specified
         else:
             request_section = ""
 
+        # 生成済みキャラクター除外リスト（直近100件）
+        existing_characters = load_generated_characters()
+        if existing_characters:
+            exclude_section = f"""
+【除外リスト】以下のキャラクターは既に生成済みです。これらとは全く異なる新しいアイデアを出してください:
+{', '.join(existing_characters)}
+"""
+        else:
+            exclude_section = ""
+
         prompt = f"""
 あなたはLINEスタンプのマーケティング専門家です。
 現在、クリエイターズマーケットで人気が出そうな
 少しニッチでシュールなキャラクターのアイデアを5つ提案してください。
-{request_section}
+{request_section}{exclude_section}
 【条件】
 1. 「ただ可愛い動物」はNG（レッドオーシャンなので）。
 2. 「動物 × 職業」や「動物 × 現代の悩み」など、ギャップや共感性のある設定にすること。
@@ -406,7 +260,12 @@ JSON配列で出力（日本語で）:
         }
 
         try:
-            return _extract_json(response.text), model_info
+            characters = _extract_json(response.text)
+            # 生成したキャラクター名を保存
+            new_names = [c.get('name', '') for c in characters if c.get('name')]
+            if new_names:
+                add_generated_characters(new_names)
+            return characters, model_info
         except:
             # フォールバック
             return [
@@ -518,29 +377,39 @@ Row 3: 13. [セリフ] ... 18. [セリフ]
 
     def generate_registration_info(self, character: dict) -> dict:
         """
-        キャラクター情報から英語のタイトルと説明文を生成
+        キャラクター情報から日英のタイトルと説明文を生成
+
+        ※ 文字数制限はGeminiに指示しない（クオリティ優先）
+        ※ ユーザーがLINE登録時に自分で調整する
 
         Args:
             character: {name, concept, target}
 
         Returns:
-            {title_en, description_en}
+            {title_ja, description_ja, title_en, description_en}
         """
         char_name = character.get('name', '')
         concept = character.get('concept', '')
         target = character.get('target', '')
 
         prompt = f"""
-以下のLINEスタンプキャラクター情報を英語に翻訳してください。
+以下のLINEスタンプキャラクター情報から、日本語と英語の登録情報を作成してください。
 
 キャラクター名（日本語）: {char_name}
 コンセプト: {concept}
 ターゲット: {target}
 
+【条件】
+- 魅力的でキャッチーなタイトルと説明文を作成
+- 購入意欲を高める説明文にする
+- 「○月○日発売」「○○と検索」等の告知文言はNG
+
 【出力形式】JSON形式で出力（説明不要）:
 {{
-    "title_en": "英語タイトル（40文字以内、キャッチーに）",
-    "description_en": "英語説明文（160文字以内、購入意欲を高める説明）"
+    "title_ja": "日本語タイトル",
+    "description_ja": "日本語説明文",
+    "title_en": "English Title",
+    "description_en": "English description"
 }}
 """
 
@@ -552,27 +421,10 @@ Row 3: 13. [セリフ] ... 18. [セリフ]
         try:
             return _extract_json(response.text)
         except:
-            # フォールバック: シンプルな英語変換
+            # フォールバック: シンプルな日英変換
             return {
-                'title_en': char_name,
-                'description_en': concept
+                'title_ja': char_name[:20],  # 全角20文字以内
+                'description_ja': concept[:80],  # 全角80文字以内
+                'title_en': char_name[:40],
+                'description_en': concept[:160]
             }
-
-
-# 使用例
-if __name__ == "__main__":
-    # テスト用
-    import os
-
-    api_key = os.environ.get("GEMINI_API_KEY")
-    if not api_key:
-        print("環境変数 GEMINI_API_KEY を設定してください")
-        exit(1)
-
-    client = GeminiClient(api_key)
-
-    # プロンプト提案テスト
-    prompts = client.suggest_stamp_prompts("溶ける青い猫", count=8)
-    print("提案されたプロンプト:")
-    for i, p in enumerate(prompts, 1):
-        print(f"  {i}. {p}")

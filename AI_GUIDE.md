@@ -18,13 +18,13 @@
 【ワークフロー】
 
 STEP 1: APIキー入力（Google AI Studio）
-STEP 2: リクエスト入力（任意）→「キャラクターを提案してもらう」→ 5案から選択
+STEP 2: リクエスト入力（任意）→「キャラクターを5案生成し選ぶ」→ 5案から選択
 STEP 3: 「画像を生成する」→ 6x3グリッド画像（18枚）
 STEP 4: 手動でスクショ切り抜き → ドロップしてリサイズ → ZIPダウンロード
 STEP 5: LINE登録情報（日本語/英語自動生成）
 
 所要時間: 約10〜15分
-費用: 約23〜25円/セット
+費用: およそ30円/セット（変動あり）
 ============================================================
 
 【使用モデル（厳格ルール）】
@@ -50,7 +50,7 @@ STEP 5: LINE登録情報（日本語/英語自動生成）
 
 | ミス | 原因 | 対策 |
 |------|------|------|
-| 「透過PNGにならない」 | Gemini 3 Pro は透過非対応 | 白背景で生成し、手動で切り抜き |
+| 「透過PNGにならない」 | nano banana pro は透過非対応 | 白背景で生成し、手動で切り抜き |
 | 「グリッドがうまく分割できない」 | 自動分割は不安定 | STEP 4の手動スクショ切り抜きを使用 |
 | 「APIキーが無効」 | 請求設定が未完了 | Google AI Studioで請求先アカウントをリンク |
 | 「禁止モデルエラー」 | gemini-2.x系を使用 | 許可モデルのみ使用（上記参照） |
@@ -60,11 +60,8 @@ STEP 5: LINE登録情報（日本語/英語自動生成）
 
 ## ツールの使い方を知りたいとき（優先順）
 
-1. **このファイル（AI_GUIDE.md）** の「ワークフロー」セクション
-2. **TROUBLESHOOTING.md** エラー発生時
-3. **PROMPTS.md** 実績プロンプト例が必要な時
-4. **GEMINI_API_GUIDE.md** API詳細が必要な時
-5. **ARCHITECTURE.md** システム設計を理解したい時
+1. **このファイル（AI_GUIDE.md）** - ワークフロー、API、実績プロンプト例
+2. **TROUBLESHOOTING.md** - エラー発生時
 
 ---
 
@@ -108,11 +105,16 @@ python server.py
 ### STEP 2: キャラクター企画
 
 **リクエスト入力欄（任意）**
+- 例: `人間のキャラクター`
 - 例: `在宅ワークで疲れたOL`
 - 例: `コーヒー中毒のペンギン`
 - 空欄の場合はAIが自由に5案を提案
 
-**「キャラクターを提案してもらう」ボタンをクリック**
+**キャラクター重複防止機能**
+- 直近100件の生成済みキャラクター名を自動で除外
+- 保存先: `data/generated_characters.json`
+
+**「キャラクターを5案生成し選ぶ（約1分）」ボタンをクリック**
 
 AIが以下を提案:
 - キャラ名
@@ -125,22 +127,31 @@ AIが以下を提案:
 
 **処理内容:**
 1. AIが英語プロンプトを生成
-2. Gemini 3 Pro Image Preview で6x3グリッド画像を生成
+2. nano banana pro で6x3グリッド画像を生成
 3. 18枚のスタンプが1枚にまとまった画像が表示
 
 **生成時間**: 30秒〜1分
+
+**生成後:**
+- 左下「クリックで拡大表示」
+- 右下「ダウンロードする」ボタン
 
 ### STEP 4: 手動で切り抜き & リサイズ
 
 **切り抜き方法:**
 - Mac: `Command + Shift + 4`
 - Windows: `Win + Shift + S`
+- **8枚 or 16枚**を選んで切り抜く（できるだけ外枠なしでギリギリに）
 
 **画像リサイズ:**
 切り抜いた画像をドラッグ&ドロップすると:
 1. LINE仕様（370x320px）に自動リサイズ
-2. main.png（240x240）、tab.png（96x74）も自動生成
+2. main.png（240x240 ストア表示用）、tab.png（96x74 トークルーム用）も自動生成
 3. ZIPでダウンロード可能
+
+**ドロップ対応:**
+- 複数ファイル選択してドロップ
+- フォルダごとドロップもOK
 
 ### STEP 5: LINE登録情報
 
@@ -169,7 +180,7 @@ AIが以下を提案:
 
 ```
 ❌ NG: 「透過PNGで出力します」
-     → Gemini 3 Pro は透過非対応
+     → nano banana pro は透過非対応
 
 ✅ OK: 「白背景で生成し、手動で切り抜いてください」
 ```
@@ -245,16 +256,69 @@ print(en_info['title_en'], en_info['description_en'])
 
 ---
 
+## 実績プロンプト例
+
+### キーボード・クラッシャー猫（18枚版）
+
+```
+Create a character sheet for LINE stickers with 18 variations (6 columns x 3 rows).
+Aspect Ratio: Wide (16:9) --ar 16:9
+Concept: "Keyboard Crasher Cat" (A cat interfering with PC work and typing gibberish).
+
+Character Settings:
+Name: Keyboard Cat
+Visual: A cat sitting, sleeping, or walking on a Laptop/Keyboard.
+Style: Modern Flat Vector Art. Digital & Pop.
+Text Style: Monospace font (Console style), Green or Black text.
+
+Layout:
+Grid: 6 columns x 3 rows (Total 18 panels).
+Text: Japanese text and "Gibberish" strings (e.g., "nnnnuuu").
+
+Panels Detail (18 Variations):
+
+Row 1 (Gibberish & Typing)
+1. Visual: Cat sliding across keys. / Text: nnnnnnuuu...
+2. Visual: Face-planting (sleeping) on keys. / Text: ddddddd;;;;;
+3. Visual: Stepping with paw. / Text: ＠「：ｌｐ；
+4. Visual: Sitting on "Delete" key. / Text: データ消失
+5. Visual: Cat typing furiously (Hacker). / Text: カタカタ
+6. Visual: Hitting "Enter" hard. / Text: ッターン！
+
+Row 2 (Interference)
+7. Visual: Sitting in front of monitor (Blocking). / Text: 邪魔
+8. Visual: Biting the screen corner. / Text: 破壊
+9. Visual: Catching mouse cursor. / Text: 作業妨害
+10. Visual: Sleeping on power adapter (Warm). / Text: 暖
+11. Visual: Tangled in mouse cord. / Text: 詰んだ
+12. Visual: Pulling the power plug. / Text: 強制終了
+
+Row 3 (Emotions & System)
+13. Visual: "Typing..." chat bubble dots. / Text: 入力中...
+14. Visual: Pressing Ctrl+Z. / Text: なかったことに
+15. Visual: Closing the laptop lid. / Text: 閉店
+16. Visual: 404 Error on cat's face. / Text: エラー
+17. Visual: Staring with dead eyes (Blue light). / Text: …
+18. Visual: Sending a weird stamp/gibberish. / Text: 誤送信
+```
+
+---
+
 ## 料金目安
 
-| 処理 | 料金 | API呼び出し |
-|------|------|------------|
-| キャラ企画（5案） | 約1〜2円 | テキスト生成 |
-| プロンプト生成 | 約1〜2円 | テキスト生成 |
-| 画像生成（1枚） | 約20円 | 画像生成 |
-| 英語登録情報生成 | 約1円 | テキスト生成 |
-| 画像リサイズ | **無料** | ローカル処理 |
-| **1セット合計** | **約23〜25円** | - |
+**1セット: およそ30円**
+
+> ⚠️ **重要**: 料金は状況により変動します。1枚作ってみて24時間後の料金反映を確かめてから量産するようにしてください。
+>
+> 💰 [請求額を確認する（Google Cloud Console）](https://console.cloud.google.com/billing)
+
+| 処理 | API呼び出し |
+|------|------------|
+| キャラ企画（5案） | テキスト生成 |
+| プロンプト生成 | テキスト生成 |
+| 画像生成（1枚） | 画像生成 |
+| 英語登録情報生成 | テキスト生成 |
+| 画像リサイズ | ローカル処理（無料） |
 
 ---
 
@@ -282,9 +346,51 @@ LINE/
 │   ├── stamp_processor.py # 画像処理（リサイズ、LINE仕様変換）
 │   └── line_spec.py       # LINE仕様定義
 ├── data/
-│   ├── uploads/           # アップロード画像
-│   └── output/            # 生成結果（stamps_YYYYMMDD_HHMMSS/）
+│   ├── output/            # 生成結果（stamps_YYYYMMDD_HHMMSS/）
+│   └── generated_characters.json  # 生成済みキャラ（直近100件）
 └── *.md                   # ドキュメント群
+```
+
+### システム構成図
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        ユーザー                              │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Web UI (index.html + script.js)                            │
+│  - STEP 1: APIキー入力                                       │
+│  - STEP 2: リクエスト入力 → キャラ提案                        │
+│  - STEP 3: 画像生成 → ダウンロードボタン                      │
+│  - STEP 4: 切り抜き → ドロップ（フォルダ対応） → リサイズ      │
+│  - STEP 5: 登録情報（日英） → ギャラリー投稿                   │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Flask Backend (server.py)                                  │
+│  - /api/verify-connection    API接続確認                     │
+│  - /api/propose-characters   キャラ提案（リクエスト対応）      │
+│  - /api/generate-grid        グリッド画像生成                 │
+│  - /api/resize-stamps        画像リサイズ                     │
+│  - /api/download/<folder>    ZIPダウンロード                  │
+└─────────────────────────────────────────────────────────────┘
+                              │
+              ┌───────────────┼───────────────┐
+              ▼               ▼               ▼
+┌──────────────────┐ ┌──────────────────┐ ┌──────────────────┐
+│  GeminiClient    │ │  StampProcessor  │ │  line_spec.py    │
+│  (API通信)        │ │  (画像処理)       │ │  (LINE仕様)       │
+└──────────────────┘ └──────────────────┘ └──────────────────┘
+              │
+              ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Gemini API (Google AI Studio)                              │
+│  - gemini-3-flash-preview (テキスト)                         │
+│  - gemini-3-pro-image-preview (画像)                         │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -310,16 +416,26 @@ LINE/
 | ファイル | 用途 |
 |---------|------|
 | [README.md](README.md) | ユーザー向けクイックスタート |
-| [PROMPTS.md](PROMPTS.md) | コピペ用プロンプト集 |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | システム設計・API詳細 |
-| [GEMINI_API_GUIDE.md](GEMINI_API_GUIDE.md) | Gemini API詳細 |
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | トラブルシューティング |
 
 ---
 
-*Made by 丸投げちゃんシリーズ - Copyright (c) 2025 株式会社CLAN*
+## ギャラリー
+
+できあがった画像をシェアしよう！
+
+🖼️ [ギャラリーに投稿する](https://ai-marunage-chan.vercel.app/gallery/)
 
 ---
+
+## ライセンス
+
+**MIT License** - Copyright (c) 2025 株式会社CLAN (https://clanbiz.net/line-stamp-marunage-chan-LP/)
+
+### 免責事項
+
+このソフトウェアは「現状のまま」提供されます。開発者は一切の責任を負いません。
+生成画像の著作権・商標権に関する最終判断はユーザー自身の責任です。
 
 ### フォーク時のお願い
 
@@ -327,5 +443,6 @@ LINE/
 
 ```
 Original work: LINEスタンプ丸投げちゃん
-Copyright (c) 2025 株式会社CLAN (https://clanbiz.net/)
+https://github.com/CLANBIZ/line-marunage-chan
+Copyright (c) 2025 株式会社CLAN (https://clanbiz.net/line-stamp-marunage-chan-LP/)
 ```

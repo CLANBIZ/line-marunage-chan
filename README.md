@@ -2,11 +2,11 @@
 
 # LINEスタンプ丸投げちゃん
 
-**Gemini 3 Pro で LINEスタンプを量産するローカル専用ツール**
+**nano banana pro で LINEスタンプを量産するローカル専用ツール**
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
-[![Gemini API](https://img.shields.io/badge/Gemini_3_Pro-API連携-4285F4.svg)](https://ai.google.dev/)
+[![Gemini API](https://img.shields.io/badge/nano_banana_pro-API連携-4285F4.svg)](https://ai.google.dev/)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-推奨-FF6B35.svg)](https://claude.ai/)
 
 ---
@@ -21,7 +21,7 @@
 2. AIエージェント（gemini 3.0 flash か claude code）に以下をコピペして伝える：
 
 ```
-https://github.com/CLANBIZ/line-marunage-chan をクローンして、pip install -r requirements.txt && python server.py を実行して http://localhost:5000 をブラウザで開いて。うまく行かない場合 AI_GUIDE.md と TROUBLESHOOTING.md を読んで解決策を探して
+https://github.com/CLANBIZ/line-marunage-chan をクローンして、pip install -r requirements.txt && python server.py を実行して http://localhost:5000 をブラウザで開いて。http://localhost:5000 が使用中の場合、他のローカルサーバーを立ち上げて。うまく行かない場合 AI_GUIDE.md と TROUBLESHOOTING.md を読んで解決策を探して
 ```
 
 💡 **Claude Codeの起動方法（Antigravity以外の場合）**
@@ -38,16 +38,20 @@ Google AI Studio（https://aistudio.google.com/apikey）でAPIキーを作成し
 
 ### Step 3: キャラクターを選んで画像生成
 
-1. 「キャラクターを提案してもらう」ボタンを押す
+1. 「キャラクターを5案生成し選ぶ（約1分）」ボタンを押す
 2. 5案から気に入ったキャラを選んで「画像を生成する」
 
 ### Step 4: 8枚or16枚選んで切り抜いてZIPダウンロード
 
-生成された画像から8枚または16枚を選択 → スクショで切り抜き（Win+Shift+S / Cmd+Shift+4）→ ドロップエリアに投げ込む → 自動でLINE仕様にリサイズ → ZIPダウンロード
+生成された画像から8枚または16枚を選択 → スクショで切り抜き（Win+Shift+S / Cmd+Shift+4）→ ドロップエリアに投げ込む（フォルダごとドロップもOK）→ 自動でLINE仕様にリサイズ → ZIPダウンロード
 
 ### Step 5: LINE Creators Marketに販売登録
 
 LINE Creators Market（https://creator.line.me/）にアクセス → ダウンロードしたZIPを解凍 → スタンプ画像をアップロード → 審査申請（通常1〜3日で承認）
+
+### できあがった画像をシェアしよう！
+
+🖼️ [ギャラリーに投稿する](https://ai-marunage-chan.vercel.app/gallery/)
 
 ---
 
@@ -98,10 +102,13 @@ A: Gemini APIの利用制限内であれば無制限です。詳細はGoogle Clo
 ボタンを押すだけで、AIがLINEスタンプ用の画像を自動生成してくれるツールです。
 
 **できること：**
-- AIがキャラクターを5案提案
-- 選んだキャラでスタンプ画像を自動生成
-- LINE規格（370x320px）に自動リサイズ
-- ZIPでまとめてダウンロード
+- AIがキャラクターを5案提案（直近100件と重複しないよう自動除外）
+- 選んだキャラでスタンプ画像を自動生成（ダウンロードボタン付き）
+- LINE規格に自動リサイズ
+  - スタンプ画像（370x320px）
+  - main.png（240x240px）ストア表示用
+  - tab.png（96x74px）トークルーム用
+- ZIPでまとめてダウンロード（フォルダドロップ対応）
 
 ---
 
@@ -244,12 +251,22 @@ client.models.generate_content(model='gemini-2.0-flash-exp', ...)
 
 ## ライセンス
 
-MIT License - Copyright (c) 2025 株式会社CLAN
+**MIT License** - Copyright (c) 2025 株式会社CLAN (https://clanbiz.net/line-stamp-marunage-chan-LP/)
 
 ### 免責事項
 
-- このソフトウェアは「現状のまま」提供されます
+- このソフトウェアは「現状のまま」提供されます。開発者は一切の責任を負いません。
 - 生成画像の著作権・商標権に関する最終判断はユーザー自身の責任です
 - LINE Creators Marketのガイドラインを必ず確認してください
 - **問題が発生した場合、量産しすぎて多額の請求が来た場合、APIキーが漏洩した場合など、いかなる損害についても当社は一切の責任を負いません**
 - 本ツールの使用は全て自己責任でお願いします
+
+### フォーク時のお願い
+
+改変・再配布する場合は、以下のクレジット表記を記載してください：
+
+```
+Original work: LINEスタンプ丸投げちゃん
+https://github.com/CLANBIZ/line-marunage-chan
+Copyright (c) 2025 株式会社CLAN (https://clanbiz.net/line-stamp-marunage-chan-LP/)
+```

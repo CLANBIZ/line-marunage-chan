@@ -60,9 +60,15 @@ pip install google-genai
 
 **原因**: APIの呼び出し回数が制限を超えた
 
+**レート制限（目安）:**
+| 項目 | 制限 |
+|------|------|
+| リクエスト/分 | 60 |
+| リクエスト/日 | 1,500（無料枠） |
+
 **解決**:
 1. 数分待ってから再試行
-2. 1日の制限（1,500リクエスト）に達した場合は翌日まで待つ
+2. 1日の制限に達した場合は翌日まで待つ
 
 ### 「画像を生成できません」
 
@@ -87,7 +93,7 @@ pip install google-genai
 
 ### 「透過PNGが出力されない」
 
-**原因**: Gemini 3 Pro Image Preview は透過PNG非対応
+**原因**: nano banana pro は透過PNG非対応
 
 **解決**:
 - これは仕様です
@@ -199,11 +205,12 @@ curl http://localhost:5000/api/propose-characters \
 ### Q: 無料で使えますか？
 
 A: Gemini API の画像生成は有料です。
-- 1セット合計: 約23〜25円
+- 1セット: およそ30円（状況により変動）
+- 1枚作ってみて24時間後の料金反映を確かめてから量産してください
 
 ### Q: 透過PNGは作れますか？
 
-A: Gemini 3 Pro Image Preview は透過PNG非対応です。
+A: nano banana pro は透過PNG非対応です。
 白背景で生成し、手動で切り抜いてください。
 
 ### Q: 何枚のスタンプを作れますか？
@@ -234,9 +241,39 @@ A: 使えません。コード内でバリデーションが実装されてお�
 
 ---
 
+## 参考リンク
+
+- [Google AI Studio](https://aistudio.google.com/) - APIキー管理
+- [Google Cloud Billing](https://console.cloud.google.com/billing) - 請求確認
+- [Gemini API ドキュメント](https://ai.google.dev/gemini-api/docs)
+- [料金ページ](https://ai.google.dev/pricing)
+
+---
+
 ## 関連ドキュメント
 
 | ファイル | 用途 |
 |---------|------|
 | [AI_GUIDE.md](AI_GUIDE.md) | AIエージェント向けメインガイド |
-| [GEMINI_API_GUIDE.md](GEMINI_API_GUIDE.md) | Gemini API詳細 |
+| [README.md](README.md) | ユーザー向けクイックスタート |
+
+---
+
+## ライセンス
+
+**MIT License** - Copyright (c) 2025 株式会社CLAN (https://clanbiz.net/line-stamp-marunage-chan-LP/)
+
+### 免責事項
+
+このソフトウェアは「現状のまま」提供されます。開発者は一切の責任を負いません。
+生成画像の著作権・商標権に関する最終判断はユーザー自身の責任です。
+
+### フォーク時のお願い
+
+改変・再配布する場合は、以下のクレジット表記を記載してください：
+
+```
+Original work: LINEスタンプ丸投げちゃん
+https://github.com/CLANBIZ/line-marunage-chan
+Copyright (c) 2025 株式会社CLAN (https://clanbiz.net/line-stamp-marunage-chan-LP/)
+```

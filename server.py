@@ -8,18 +8,13 @@ Gemini APIを使った画像生成とLINE仕様への変換を行います。
 import os
 import io
 import json
-import base64
-import re
-import unicodedata
 import zipfile
 from functools import wraps
 from pathlib import Path
-from urllib.parse import unquote
 from datetime import datetime
 
 from flask import Flask, request, jsonify, send_from_directory, send_file
 from flask_cors import CORS
-from werkzeug.utils import secure_filename
 
 # Core モジュール
 from core.gemini_client import GeminiClient
@@ -48,33 +43,16 @@ ALLOWED_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.gif', '.webp'}
 # ディレクトリ設定
 BASE_DIR = Path(__file__).parent
 DATA_DIR = BASE_DIR / "data"
-UPLOAD_DIR = DATA_DIR / "uploads"
 OUTPUT_DIR = DATA_DIR / "output"
 CONFIG_FILE = DATA_DIR / "mcp_config.json"
 
 # ディレクトリ作成
-UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # ========================================
 # セキュリティ関数
 # ========================================
-
-def safe_filename(filename):
-    """日本語対応の安全なファイル名変換"""
-    filename = unquote(filename)
-    filename = unicodedata.normalize('NFC', filename)
-    filename = filename.replace('/', '_').replace('\\', '_')
-    filename = filename.replace('..', '_')
-    filename = re.sub(r'[\x00-\x1f\x7f<>:"|?*]', '', filename)
-    filename = filename.strip(' .')
-    if '/' in filename or '\\' in filename or '..' in filename:
-        filename = re.sub(r'[/\\]', '_', filename).replace('..', '_')
-    if not filename:
-        filename = 'unnamed_file'
-    return filename
-
 
 def validate_extension(filename):
     """ファイル拡張子を検証"""
@@ -162,91 +140,6 @@ def api_config():
 
         save_api_key(api_key)
         return jsonify({'success': True, 'message': 'APIキーを保存しました'})
-
-
-@app.route('/api/upload', methods=['POST'])
-def api_upload():
-    """画像アップロード"""
-    if 'files' not in request.files:
-        return jsonify({'success': False, 'error': 'ファイルがありません'}), 400
-
-    files = request.files.getlist('files')
-    uploaded = []
-
-    for file in files:
-        if file.filename and validate_extension(file.filename):
-            filename = safe_filename(file.filename)
-            # タイムスタンプ付きで保存
-            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-            save_name = f"{timestamp}_{filename}"
-            save_path = UPLOAD_DIR / save_name
-            file.save(save_path)
-            uploaded.append({
-                'original': file.filename,
-                'saved': save_name,
-                'path': str(save_path)
-            })
-
-    return jsonify({
-        'success': True,
-        'uploaded_count': len(uploaded),
-        'files': uploaded
-    })
-
-
-@app.route('/api/generate', methods=['POST'])
-@require_api_key
-def api_generate(api_key):
-    """Gemini APIで画像生成"""
-    data = request.get_json()
-    prompt = data.get('prompt', '')
-    style = data.get('style', 'kawaii')
-
-    if not prompt:
-        return jsonify({'success': False, 'error': 'プロンプトが空です'}), 400
-
-    try:
-        client = GeminiClient(api_key)
-        image = client.generate_stamp_image(prompt, style)
-
-        # 一時保存
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        save_path = UPLOAD_DIR / f"generated_{timestamp}.png"
-        image.save(save_path, 'PNG')
-
-        return jsonify({
-            'success': True,
-            'path': str(save_path),
-            'filename': save_path.name
-        })
-
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/suggest-prompts', methods=['POST'])
-@require_api_key
-def api_suggest_prompts(api_key):
-    """テーマからプロンプトを提案"""
-    data = request.get_json()
-    theme = data.get('theme', '')
-    count = data.get('count', 16)
-
-    if not theme:
-        return jsonify({'success': False, 'error': 'テーマが空です'}), 400
-
-    try:
-        client = GeminiClient(api_key)
-        prompts = client.suggest_stamp_prompts(theme, count)
-
-        return jsonify({
-            'success': True,
-            'theme': theme,
-            'prompts': prompts
-        })
-
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/api/verify-connection', methods=['POST'])
@@ -359,142 +252,6 @@ def api_generate_grid(api_key):
 
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/process', methods=['POST'])
-def api_process():
-    """画像をLINE仕様に変換"""
-    data = request.get_json()
-    files = data.get('files', [])
-    remove_bg = data.get('remove_bg', False)
-
-    if not files:
-        return jsonify({'success': False, 'error': 'ファイルが指定されていません'}), 400
-
-    try:
-        # 出力ディレクトリを新規作成
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        output_dir = OUTPUT_DIR / f"stamps_{timestamp}"
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-        processor = StampProcessor(str(output_dir))
-        images = [str(UPLOAD_DIR / f) if not Path(f).is_absolute() else f for f in files]
-
-        result = processor.process_batch(images, remove_bg)
-
-        return jsonify({
-            'success': True,
-            **result
-        })
-
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/process-grid', methods=['POST'])
-def api_process_grid():
-    """グリッド画像を分割して処理"""
-    data = request.get_json()
-    file_path = data.get('file')
-    rows = data.get('rows', 4)
-    cols = data.get('cols', 4)
-    remove_bg = data.get('remove_bg', False)
-
-    if not file_path:
-        return jsonify({'success': False, 'error': 'ファイルが指定されていません'}), 400
-
-    try:
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        output_dir = OUTPUT_DIR / f"stamps_{timestamp}"
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-        processor = StampProcessor(str(output_dir))
-
-        # パスの解決
-        if not Path(file_path).is_absolute():
-            file_path = str(UPLOAD_DIR / file_path)
-
-        result = processor.process_grid_image(file_path, rows, cols, remove_bg)
-
-        return jsonify({
-            'success': True,
-            **result
-        })
-
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/analyze', methods=['POST'])
-@require_api_key
-def api_analyze(api_key):
-    """画像を解析してスタンプ情報を提案"""
-    data = request.get_json()
-    file_path = data.get('file')
-
-    if not file_path:
-        return jsonify({'success': False, 'error': 'ファイルが指定されていません'}), 400
-
-    try:
-        client = GeminiClient(api_key)
-
-        if not Path(file_path).is_absolute():
-            file_path = str(UPLOAD_DIR / file_path)
-
-        result = client.analyze_image_for_stamp(file_path)
-
-        return jsonify({
-            'success': True,
-            'analysis': result
-        })
-
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/files', methods=['GET'])
-def api_files():
-    """アップロード済みファイル一覧"""
-    files = []
-
-    for f in UPLOAD_DIR.glob('*'):
-        if f.is_file() and validate_extension(f.name):
-            files.append({
-                'name': f.name,
-                'size': f.stat().st_size,
-                'modified': f.stat().st_mtime
-            })
-
-    files.sort(key=lambda x: x['modified'], reverse=True)
-
-    return jsonify({
-        'success': True,
-        'files': files
-    })
-
-
-@app.route('/api/outputs', methods=['GET'])
-def api_outputs():
-    """出力フォルダ一覧"""
-    outputs = []
-
-    for d in OUTPUT_DIR.glob('stamps_*'):
-        if d.is_dir():
-            files = list(d.glob('*.png'))
-            outputs.append({
-                'name': d.name,
-                'path': str(d),
-                'file_count': len(files),
-                'has_main': (d / 'main.png').exists(),
-                'has_tab': (d / 'tab.png').exists()
-            })
-
-    outputs.sort(key=lambda x: x['name'], reverse=True)
-
-    return jsonify({
-        'success': True,
-        'outputs': outputs
-    })
 
 
 @app.route('/api/download/<folder>', methods=['GET'])

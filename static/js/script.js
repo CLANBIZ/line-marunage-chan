@@ -337,9 +337,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log('='.repeat(50));
                 }
 
-                // Show steps 4 and 5
+                // Show steps 4, 5 and gallery
                 ui.step4.classList.remove('hidden');
                 ui.step5.classList.remove('hidden');
+                const gallerySection = document.getElementById('gallerySection');
+                if (gallerySection) gallerySection.classList.remove('hidden');
 
                 // Render registration info
                 renderRegistrationInfo(result.registration);
@@ -363,7 +365,12 @@ document.addEventListener('DOMContentLoaded', () => {
                      class="generated-image"
                      onclick="window.open('${result.image_url}', '_blank')">
             </a>
-            <p class="text-sm text-muted mt-2">クリックで拡大表示</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                <p class="text-sm text-muted" style="margin: 0;">クリックで拡大表示</p>
+                <a href="${result.image_url}" download="stamp_grid.png" class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem;">
+                    &#128229; ダウンロードする
+                </a>
+            </div>
         `;
         ui.generatedResult.classList.remove('hidden');
     }
@@ -379,31 +386,100 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         }
 
+        // 文字数カウント関数（全角=2, 半角=1）
+        function countChars(str, isJapanese) {
+            if (!str) return 0;
+            if (isJapanese) {
+                // 全角文字数をカウント（半角換算で返す）
+                let count = 0;
+                for (const char of str) {
+                    count += char.match(/[\u3000-\u9fff\uff00-\uffef]/) ? 2 : 1;
+                }
+                return count;
+            }
+            return str.length;
+        }
+
+        // 文字数表示用のクラス
+        function getCharCountClass(current, max) {
+            if (current > max) return 'char-count-over';
+            if (current > max * 0.9) return 'char-count-warning';
+            return 'char-count-ok';
+        }
+
+        const titleJaCount = countChars(info.title_ja, true);
+        const titleEnCount = countChars(info.title_en, false);
+        const descJaCount = countChars(info.description_ja, true);
+        const descEnCount = countChars(info.description_en, false);
+
         ui.registrationInfo.innerHTML = `
+            <div class="char-limit-notice" style="margin-bottom: 1rem; padding: 0.75rem; background: rgba(99, 102, 241, 0.1); border-radius: 8px; font-size: 0.875rem;">
+                <strong>LINE Creators Market 文字数制限:</strong><br>
+                日本語タイトル: 20文字 / 日本語説明: 80文字<br>
+                英語タイトル: 40文字 / 英語説明: 160文字
+            </div>
             <table>
                 <tr>
                     <th>タイトル（日本語）</th>
-                    <td><input type="text" value="${escapeHtml(info.title_ja)}" id="regTitleJa"></td>
+                    <td>
+                        <input type="text" value="${escapeHtml(info.title_ja || '')}" id="regTitleJa" maxlength="20" oninput="updateCharCount(this, 'titleJaCount', 40, true)">
+                        <span class="char-count ${getCharCountClass(titleJaCount, 40)}" id="titleJaCount">${titleJaCount}/40</span>
+                    </td>
                 </tr>
                 <tr>
                     <th>タイトル（英語）</th>
-                    <td><input type="text" value="${escapeHtml(info.title_en)}" id="regTitleEn"></td>
+                    <td>
+                        <input type="text" value="${escapeHtml(info.title_en || '')}" id="regTitleEn" maxlength="40" oninput="updateCharCount(this, 'titleEnCount', 40, false)">
+                        <span class="char-count ${getCharCountClass(titleEnCount, 40)}" id="titleEnCount">${titleEnCount}/40</span>
+                    </td>
                 </tr>
                 <tr>
                     <th>説明文（日本語）</th>
-                    <td><input type="text" value="${escapeHtml(info.description_ja)}" id="regDescJa"></td>
+                    <td>
+                        <input type="text" value="${escapeHtml(info.description_ja || '')}" id="regDescJa" maxlength="80" oninput="updateCharCount(this, 'descJaCount', 160, true)">
+                        <span class="char-count ${getCharCountClass(descJaCount, 160)}" id="descJaCount">${descJaCount}/160</span>
+                    </td>
                 </tr>
                 <tr>
                     <th>説明文（英語）</th>
-                    <td><input type="text" value="${escapeHtml(info.description_en)}" id="regDescEn"></td>
+                    <td>
+                        <input type="text" value="${escapeHtml(info.description_en || '')}" id="regDescEn" maxlength="160" oninput="updateCharCount(this, 'descEnCount', 160, false)">
+                        <span class="char-count ${getCharCountClass(descEnCount, 160)}" id="descEnCount">${descEnCount}/160</span>
+                    </td>
                 </tr>
                 <tr>
                     <th>コピーライト</th>
-                    <td><input type="text" value="${escapeHtml(info.copyright)}" id="regCopyright"></td>
+                    <td><input type="text" value="${escapeHtml(info.copyright || '')}" id="regCopyright"></td>
                 </tr>
             </table>
         `;
     }
+
+    // グローバル関数: 文字数カウント更新
+    window.updateCharCount = function(input, countId, max, isJapanese) {
+        const str = input.value;
+        let count = 0;
+        if (isJapanese) {
+            for (const char of str) {
+                count += char.match(/[\u3000-\u9fff\uff00-\uffef]/) ? 2 : 1;
+            }
+        } else {
+            count = str.length;
+        }
+
+        const countEl = document.getElementById(countId);
+        if (countEl) {
+            countEl.textContent = `${count}/${max}`;
+            countEl.className = 'char-count';
+            if (count > max) {
+                countEl.classList.add('char-count-over');
+            } else if (count > max * 0.9) {
+                countEl.classList.add('char-count-warning');
+            } else {
+                countEl.classList.add('char-count-ok');
+            }
+        }
+    };
 
     // ========================================
     // Initialization
@@ -460,13 +536,74 @@ document.addEventListener('DOMContentLoaded', () => {
             }, false);
         });
 
-        // Handle drop
-        dropZone.addEventListener('drop', (e) => {
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                handleFiles(files);
+        // Handle drop (files and folders)
+        dropZone.addEventListener('drop', async (e) => {
+            const items = e.dataTransfer.items;
+            if (items && items.length > 0) {
+                // フォルダ対応: webkitGetAsEntry を使用
+                const allFiles = await getAllFilesFromDrop(items);
+                if (allFiles.length > 0) {
+                    handleFiles(allFiles);
+                } else {
+                    showToast('画像ファイルが見つかりませんでした', 'error');
+                }
             }
         });
+
+        // フォルダ内のファイルを再帰的に取得
+        async function getAllFilesFromDrop(items) {
+            const files = [];
+
+            async function traverseEntry(entry) {
+                if (entry.isFile) {
+                    return new Promise((resolve) => {
+                        entry.file((file) => {
+                            if (file.type.startsWith('image/')) {
+                                files.push(file);
+                            }
+                            resolve();
+                        }, () => resolve());
+                    });
+                } else if (entry.isDirectory) {
+                    const reader = entry.createReader();
+                    return new Promise((resolve) => {
+                        const readEntries = () => {
+                            reader.readEntries(async (entries) => {
+                                if (entries.length === 0) {
+                                    resolve();
+                                } else {
+                                    for (const ent of entries) {
+                                        await traverseEntry(ent);
+                                    }
+                                    readEntries(); // 続きを読む（100件ずつ返される）
+                                }
+                            }, () => resolve());
+                        };
+                        readEntries();
+                    });
+                }
+            }
+
+            const promises = [];
+            for (const item of items) {
+                const entry = item.webkitGetAsEntry ? item.webkitGetAsEntry() : null;
+                if (entry) {
+                    promises.push(traverseEntry(entry));
+                } else if (item.kind === 'file') {
+                    const file = item.getAsFile();
+                    if (file && file.type.startsWith('image/')) {
+                        files.push(file);
+                    }
+                }
+            }
+
+            await Promise.all(promises);
+
+            // ファイル名でソート（01.png, 02.png...の順番を維持）
+            files.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+
+            return files;
+        }
 
         // Handle file input change
         fileInput.addEventListener('change', (e) => {
@@ -476,8 +613,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         async function handleFiles(files) {
-            // Filter image files only
-            const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+            // Filter image files only (FileList or Array対応)
+            const fileArray = Array.from(files);
+            const imageFiles = fileArray.filter(f => f.type.startsWith('image/'));
             if (imageFiles.length === 0) {
                 showToast('画像ファイルを選択してください', 'error');
                 return;
