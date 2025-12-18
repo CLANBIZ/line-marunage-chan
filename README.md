@@ -13,69 +13,6 @@
 
 </div>
 
-## 🚨 AIエージェント向け必読事項
-
-> **Claude Code や他のAIエージェントがこのプロジェクトを扱う場合、必ずこのセクションを読むこと**
-
-### 許可されたモデル（これ以外は使用禁止）
-
-| 用途 | モデル名 |
-|------|---------|
-| テキスト生成 | `gemini-3-flash-preview` |
-| 画像生成 | `gemini-3-pro-image-preview` |
-
-### ❌ 禁止モデル（絶対に使うな）
-
-```
-gemini-2.0-flash-exp   ← 使用禁止
-gemini-2.0-flash       ← 使用禁止
-gemini-2.5-flash       ← 使用禁止
-gemini-1.x 系          ← 使用禁止
-"flash" を含む全て     ← 使用禁止
-```
-
-### ❌ やってはいけないこと
-
-```python
-# ダメな例：自分でプロンプトを書いて直接画像生成
-prompt = "cute cat LINE sticker..."
-client.models.generate_content(model='gemini-2.0-flash-exp', ...)
-```
-
-### ✅ 正しいワークフロー
-
-```python
-# Step 1: gemini-3-flash-preview でキャラクター提案
-# Step 2: gemini-3-flash-preview で英語プロンプト生成
-# Step 3: gemini-3-pro-image-preview で画像生成
-```
-
-詳細は `core/gemini_client.py` と `AI_GUIDE.md` を参照。
-
----
-
-## これは何？
-
-ボタンを押すだけで、AIがLINEスタンプ用の画像を自動生成してくれるツールです。
-
-**できること：**
-- AIがキャラクターを5案提案
-- 選んだキャラでスタンプ画像を自動生成
-- LINE規格（370x320px）に自動リサイズ
-- ZIPでまとめてダウンロード
-
----
-
-## 必要なもの
-
-| 必要なもの | 入手方法 |
-|-----------|---------|
-| **Python 3.10以上** | https://www.python.org/downloads/ からダウンロード |
-| **Gemini APIキー** | 下の「APIキーの取得方法」を参照 |
-| **Claude Code**（推奨） | https://claude.ai/download |
-
----
-
 ## クイックスタート（5ステップ）
 
 ### Step 1: エディタ（Antigravity）を立ち上げる
@@ -114,6 +51,70 @@ LINE Creators Market（https://creator.line.me/）にアクセス → ダウン�
 
 ---
 
+## 使い方（詳細）
+
+### スタンプ作成の流れ
+
+```
+Step 1: エディタ（Antigravity）を立ち上げる
+    ↓
+Step 2: APIキーを取得して入力
+    ↓
+Step 3: キャラクターを選んで画像生成
+    ↓
+Step 4: 8枚or16枚選んで切り抜いてZIPダウンロード
+    ↓
+Step 5: LINE Creators Marketに販売登録
+```
+
+### LINE Creators Marketへの登録
+
+1. https://creator.line.me/ にアクセス
+2. LINEアカウントでログイン
+3. 「スタンプを作る」を選択
+4. ZIPを解凍した画像をアップロード
+5. タイトル・説明文を入力（ツールが英語版も生成します）
+
+---
+
+## よくある質問
+
+### Q: 無料で使えますか？
+
+A: ツール自体は無料ですが、Gemini APIの利用料金（1セットおよそ30円程度）がかかります。料金は変動するので、1枚作ってみて24時間後の料金反映を確かめてから量産してください。
+
+### Q: 生成した画像の著作権は？
+
+A: AI生成画像の著作権は利用者に帰属します。ただし、LINE Creators Marketのガイドラインを必ず確認してください。
+
+### Q: 1日何枚まで生成できますか？
+
+A: Gemini APIの利用制限内であれば無制限です。詳細はGoogle Cloud Consoleで確認できます。
+
+---
+
+## これは何？
+
+ボタンを押すだけで、AIがLINEスタンプ用の画像を自動生成してくれるツールです。
+
+**できること：**
+- AIがキャラクターを5案提案
+- 選んだキャラでスタンプ画像を自動生成
+- LINE規格（370x320px）に自動リサイズ
+- ZIPでまとめてダウンロード
+
+---
+
+## 必要なもの
+
+| 必要なもの | 入手方法 |
+|-----------|---------|
+| **Python 3.10以上** | https://www.python.org/downloads/ からダウンロード |
+| **Gemini APIキー** | 下の「APIキーの取得方法」を参照 |
+| **Claude Code**（推奨） | https://claude.ai/download |
+
+---
+
 ## APIキーの取得方法（図解）
 
 ### 手順1: Google AI Studioにアクセス
@@ -139,32 +140,6 @@ https://aistudio.google.com/apikey
 3. クレジットカードを登録
 
 > **注意：** 無料枠では画像生成できません。1セットおよそ30円程度かかります（状況により変動するので、1枚作ってみて24時間後の料金反映を確かめてから量産するようにしてください）。
-
----
-
-## 使い方（詳細）
-
-### スタンプ作成の流れ
-
-```
-Step 1: エディタ（Antigravity）を立ち上げる
-    ↓
-Step 2: APIキーを取得して入力
-    ↓
-Step 3: キャラクターを選んで画像生成
-    ↓
-Step 4: 8枚or16枚選んで切り抜いてZIPダウンロード
-    ↓
-Step 5: LINE Creators Marketに販売登録
-```
-
-### LINE Creators Marketへの登録
-
-1. https://creator.line.me/ にアクセス
-2. LINEアカウントでログイン
-3. 「スタンプを作る」を選択
-4. ZIPを解凍した画像をアップロード
-5. タイトル・説明文を入力（ツールが英語版も生成します）
 
 ---
 
@@ -226,19 +201,44 @@ line-marunage-chan/
 
 ---
 
-## よくある質問
+## 🚨 AIエージェント向け必読事項
 
-### Q: 無料で使えますか？
+> **Claude Code や他のAIエージェントがこのプロジェクトを扱う場合、必ずこのセクションを読むこと**
 
-A: ツール自体は無料ですが、Gemini APIの利用料金（1セットおよそ30円程度）がかかります。料金は変動するので、1枚作ってみて24時間後の料金反映を確かめてから量産してください。
+### 許可されたモデル（これ以外は使用禁止）
 
-### Q: 生成した画像の著作権は？
+| 用途 | モデル名 |
+|------|---------|
+| テキスト生成 | `gemini-3-flash-preview` |
+| 画像生成 | `gemini-3-pro-image-preview` |
 
-A: AI生成画像の著作権は利用者に帰属します。ただし、LINE Creators Marketのガイドラインを必ず確認してください。
+### ❌ 禁止モデル（絶対に使うな）
 
-### Q: 1日何枚まで生成できますか？
+```
+gemini-2.0-flash-exp   ← 使用禁止
+gemini-2.0-flash       ← 使用禁止
+gemini-2.5-flash       ← 使用禁止
+gemini-1.x 系          ← 使用禁止
+"flash" を含む全て     ← 使用禁止
+```
 
-A: Gemini APIの利用制限内であれば無制限です。詳細はGoogle Cloud Consoleで確認できます。
+### ❌ やってはいけないこと
+
+```python
+# ダメな例：自分でプロンプトを書いて直接画像生成
+prompt = "cute cat LINE sticker..."
+client.models.generate_content(model='gemini-2.0-flash-exp', ...)
+```
+
+### ✅ 正しいワークフロー
+
+```python
+# Step 1: gemini-3-flash-preview でキャラクター提案
+# Step 2: gemini-3-flash-preview で英語プロンプト生成
+# Step 3: gemini-3-pro-image-preview で画像生成
+```
+
+詳細は `core/gemini_client.py` と `AI_GUIDE.md` を参照。
 
 ---
 
